@@ -1,5 +1,5 @@
 # app.py - Flask Backend for TSP Distance Optimizer
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, redirect
 from flask_cors import CORS
 import requests
 import itertools
@@ -546,7 +546,16 @@ class DistanceMatrixCalculator:
 
 @app.route('/')
 def home():
-    """Home endpoint"""
+    """Home endpoint.
+
+    Behavior:
+    - If the client accepts HTML (browser), redirect to the frontend UI at `/ui/`.
+    - Otherwise return the API index JSON for programmatic clients.
+    """
+    # If this is a browser (Accept header includes text/html), redirect to the UI
+    if request.accept_mimetypes and request.accept_mimetypes.accept_html:
+        return redirect('/ui/')
+
     return jsonify({
         'message': 'TSP Distance Optimizer API',
         'version': '1.0',

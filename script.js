@@ -1,7 +1,7 @@
   // script.js - Frontend logic (backend-first autocomplete, Leaflet map)
 (() => {
   const MAX_LOCATIONS = 50;
-  const BACKEND_BASE = 'http://localhost:5000';
+  const BACKEND_BASE = 'https://getripath.onrender.com';
   // Backend (Photon) autocomplete is always used.
   const parent = document.getElementById('location-inputs');
   if (!parent) return;

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Backend Connection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .test-section h2 {
+            color: #495057;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online {
+            background: #28a745;
+            box-shadow: 0 0 10px #28a745;
+        }
+        
+        .status-offline {
+            background: #dc3545;
+        }
+        
+        .main-app-link {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+        }
+        
+        .main-app-link a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .main-app-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Backend Connection Test</h1>
+        
+        <div class="test-section">
+            <h2><span id="status-indicator" class="status-indicator status-offline"></span>Backend Status</h2>
+            <button onclick="testHealth()">Check Backend Health</button>
+            <button onclick="testHome()">Test Home Endpoint</button>
+            <div id="status-result" class="result info" style="display:none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📍 Test Route Calculation</h2>
+            <button onclick="testSimpleRoute()">Test 2 Locations</button>
+            <button onclick="testComplexRoute()">Test 5 Locations</button>
+            <div id="route-result" class="result info" style="display:none;"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔍 System Information</h2>
+            <button onclick="showSystemInfo()">Show System Info</button>
+            <div id="system-info" class="result info" style="display:none;"></div>
+        </div>
+        
+        <div class="main-app-link">
+            <a href="index.html">🚀 Go to Main Application →</a>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:5000';
+        
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = 'result info';
+            element.innerHTML = '<span class="loading"></span>Testing...';
+        }
+        
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${type}`;
+            element.innerHTML = message;
+        }
+        
+        async function testHealth() {
+            showLoading('status-result');
+            
+            try {
+                const response = await fetch(`${API_URL}/health`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('status-indicator').className = 'status-indicator status-online';
+                    showResult('status-result', 
+                        `<strong>✓ Backend is ONLINE!</strong><br>
+                        Status: ${data.status}<br>
+                        URL: ${API_URL}`, 
+                        'success');
+                } else {
+                    document.getElementById('status-indicator').className = 'status-indicator status-offline';
+                    showResult('status-result', 
+                        `<strong>✗ Backend returned error</strong><br>
+                        Status Code: ${response.status}`, 
+                        'error');
+                }
+            } catch (error) {
+                document.getElementById('status-indicator').className = 'status-indicator status-offline';
+                showResult('status-result', 
+                    `<strong>✗ Cannot connect to backend</strong><br>
+                    Error: ${error.message}<br><br>
+                    <strong>Possible solutions:</strong><br>
+                    1. Make sure backend is running: <code>python app.py</code><br>
+                    2. Check if port 5000 is available<br>
+                    3. Verify Flask and Flask-CORS are installed`, 
+                    'error');
+            }
+        }
+        
+        async function testHome() {
+            showLoading('status-result');
+            
+            try {
+                const response = await fetch(`${API_URL}/`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('status-result', 
+                        `<strong>✓ Home endpoint working!</strong><br>
+                        API: ${data.message}<br>
+                        Version: ${data.version}<br>
+                        <pre>${JSON.stringify(data.endpoints, null, 2)}</pre>`, 
+                        'success');
+                } else {
+                    showResult('status-result', 
+                        `<strong>✗ Home endpoint error</strong><br>
+                        Status Code: ${response.status}`, 
+                        'error');
+                }
+            } catch (error) {
+                showResult('status-result', 
+                    `<strong>✗ Connection failed</strong><br>
+                    Error: ${error.message}`, 
+                    'error');
+            }
+        }
+        
+        async function testSimpleRoute() {
+            showLoading('route-result');
+            
+            const testData = {
+                locations: [
+                    "Hyderabad, Telangana",
+                    "Mumbai, Maharashtra"
+                ]
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/calculate-route`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('route-result', 
+                        `<strong>✓ Route calculated successfully!</strong><br>
+                        Locations: ${data.locations.length}<br>
+                        Total Distance: ${data.total_distance.toFixed(2)} km<br>
+                        Algorithm: ${data.algorithm_used}<br>
+                        Optimal Path: ${data.optimal_path.join(' → ')}`, 
+                        'success');
+                } else {
+                    const error = await response.json();
+                    showResult('route-result', 
+                        `<strong>✗ Route calculation failed</strong><br>
+                        Error: ${error.error || 'Unknown error'}`, 
+                        'error');
+                }
+            } catch (error) {
+                showResult('route-result', 
+                    `<strong>✗ Connection failed</strong><br>
+                    Error: ${error.message}<br><br>
+                    Make sure backend is running on ${API_URL}`, 
+                    'error');
+            }
+        }
+        
+        async function testComplexRoute() {
+            showLoading('route-result');
+            
+            const testData = {
+                locations: [
+                    "Hyderabad, Telangana",
+                    "Mumbai, Maharashtra",
+                    "Pune, Maharashtra",
+                    "Bangalore, Karnataka",
+                    "Chennai, Tamil Nadu"
+                ]
+            };
+            
+            showResult('route-result', 
+                '<span class="loading"></span>Calculating route for 5 locations...<br>This may take 15-30 seconds...', 
+                'info');
+            
+            try {
+                const response = await fetch(`${API_URL}/calculate-route`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(testData)
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult('route-result', 
+                        `<strong>✓ Complex route calculated!</strong><br>
+                        Locations: ${data.locations.length}<br>
+                        Total Distance: ${data.total_distance.toFixed(2)} km<br>
+                        Algorithm: ${data.algorithm_used}<br>
+                        Optimal Path:<br>
+                        ${data.optimal_path.map((loc, i) => `${i + 1}. ${loc}`).join('<br>')}`, 
+                        'success');
+                } else {
+                    const error = await response.json();
+                    showResult('route-result', 
+                        `<strong>✗ Route calculation failed</strong><br>
+                        Error: ${error.error || 'Unknown error'}`, 
+                        'error');
+                }
+            } catch (error) {
+                showResult('route-result', 
+                    `<strong>✗ Connection failed</strong><br>
+                    Error: ${error.message}`, 
+                    'error');
+            }
+        }
+        
+        function showSystemInfo() {
+            const info = {
+                'Browser': navigator.userAgent,
+                'Platform': navigator.platform,
+                'Language': navigator.language,
+                'Online': navigator.onLine ? 'Yes' : 'No',
+                'Backend URL': API_URL,
+                'Current Time': new Date().toLocaleString()
+            };
+            
+            let html = '<strong>System Information:</strong><br><br>';
+            for (const [key, value] of Object.entries(info)) {
+                html += `<strong>${key}:</strong> ${value}<br>`;
+            }
+            
+            showResult('system-info', html, 'info');
+        }
+        
+        // Auto-check backend status on page load
+        window.addEventListener('load', () => {
+            setTimeout(testHealth, 500);
+        });
+    </script>
+</body>
+</html>

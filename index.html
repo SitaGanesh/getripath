@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP Distance Optimizer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Momo+Trust+Display&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <div class="container">
+        <div id="backend-warning" style="display:none; background:#f8d7da; color:#721c24; padding:15px; border-radius:8px; border:1px solid #f5c6cb; margin:20px 0; text-align:center; font-weight:bold;">
+            ⚠️ Unable to connect to backend server at <span style="text-decoration:underline;">http://localhost:5000</span>. Please ensure the backend is running.<br>
+            <span style="font-size:0.95em; font-weight:normal;">See <b>HOWTORUN.md</b> for instructions.</span>
+        </div>
+        <header>
+            <h1>🗺️ Travel Distance Optimizer</h1>
+            <p>Find the shortest route visiting all your locations</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-section">
+                <form id="location-form">
+                    <h2>Enter Locations</h2>
+                    <div id="location-inputs">
+                        <div class="content" id="location1">
+                            <input type="text" id="loc-input-1" name="location1" placeholder="Enter location 1 (e.g., Hyderabad)">
+                            <label for="loc-input-1">Add Location</label>
+                            <button type="button" class="btn-yes" data-index="1">Yes</button>
+                            <button type="button" class="btn-no" data-index="1">No</button>
+                            <span class="status" aria-hidden="true"></span>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" id="submit-btn" class="submit-btn btn-grad">Calculate Optimal Route</button>
+                        <button type="button" id="reset-btn" class="reset-btn btn-grad">Reset</button>
+                    </div>
+                    <div id="loading" class="loading" style="display: none;">
+                        <div class="spinner"></div>
+                        <p>Calculating optimal route...</p>
+                    </div>
+                </form>
+            </div>
+
+            <div class="results-section">
+                <h2>Results</h2>
+                <div id="results" class="results-content">
+                    <p class="placeholder">Enter at least 2 locations and click "Calculate Optimal Route" to see results.</p>
+                </div>
+                
+                <div id="map-container" style="display: none;">
+                    <h3>Route Map</h3>
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+  padding: 10px 0;
+  color:rgba(103, 103, 103, 1);
+">
+  Built with ❤️ by Sita Ganesh
+</div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="script.js"></script>
+    <script>
+    // Show backend warning if AJAX fails (script.js will call this)
+    function showBackendWarning() {
+        var warn = document.getElementById('backend-warning');
+        if (warn) warn.style.display = 'block';
+    }
+    </script>
+</body>
+</html>

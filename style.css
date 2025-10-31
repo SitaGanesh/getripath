@@ -1,0 +1,444 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Momo Trust Display', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0d0e12; /* requested dark background */
+    min-height: 100vh;
+    padding: 20px;
+    color: #1c1818;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* web gradient provided by user */
+.web-gradient {
+    background-image: linear-gradient(to right, #868f96 0%, #596164 100%);
+}
+
+header {
+    background-image: linear-gradient(to right, #868f96 0%, #596164 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 30px;
+}
+
+@media (max-width: 1024px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+.input-section h2,
+.results-section h2 {
+    color: #667eea;
+    margin-bottom: 20px;
+    font-size: 1.5em;
+}
+
+.content {
+    background: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.content:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+}
+
+.content input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 1em;
+    margin-bottom: 10px;
+    transition: border-color 0.3s ease;
+}
+
+.content input[type="text"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.content label {
+    display: block;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.content button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 8px;
+}
+
+.btn-yes {
+    background: #28a745;
+    color: white;
+}
+
+.btn-yes:hover:not(:disabled) {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.btn-no {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-no:hover:not(:disabled) {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.content button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.status {
+    display: inline-block;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+.submit-btn,
+.reset-btn {
+    flex: 1;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.reset-btn {
+    background: transparent;
+    color: white;
+}
+
+.reset-btn:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.results-content {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    min-height: 200px;
+}
+
+.placeholder {
+    color: #6c757d;
+    text-align: center;
+    padding: 40px 20px;
+    font-style: italic;
+}
+
+.result-item h3 {
+    color: #495057;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.result-item p {
+    color: #6c757d;
+    line-height: 1.6;
+}
+
+/* Responsive controls for nearest-neighbor and CSV export */
+.nn-controls .nn-controls-inner {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.nn-controls .nn-select {
+    min-width: 220px;
+    max-width: 50%;
+}
+
+.nn-controls .nn-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.nn-controls .nn-btn {
+    /* base button properties copied from .submit-btn/.reset-btn for consistency */
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 0 1 auto;
+}
+
+/* Small screens: stack controls vertically and make buttons full-width */
+@media (max-width: 640px) {
+    .nn-controls .nn-controls-inner {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .nn-controls .nn-select {
+        max-width: 100%;
+        width: 100%;
+    }
+    .nn-controls .nn-buttons {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 6px;
+    }
+    .nn-controls .nn-btn {
+        width: 100%;
+        box-sizing: border-box;
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+}
+
+.optimal-route {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.optimal-route h3 {
+    color: white;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.route-path {
+    font-size: 1.1em;
+    font-weight: 600;
+    margin: 10px 0;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.total-distance {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.distance-matrix {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-x: auto;
+}
+
+.distance-matrix table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.distance-matrix th,
+.distance-matrix td {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+}
+
+/* Allow long location names to wrap and be visible on small screens */
+.distance-matrix th,
+.distance-matrix td {
+    white-space: normal;
+    word-break: break-word;
+    max-width: 220px;
+}
+
+.distance-matrix th {
+    vertical-align: top;
+}
+
+.distance-matrix th {
+    background: #667eea;
+    color: white;
+    font-weight: 600;
+}
+
+.distance-matrix tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+#map-container {
+    margin-top: 25px;
+}
+
+#map-container h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+#map {
+    width: 100%;
+    height: 500px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    margin: 15px 0;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #c3e6cb;
+    margin: 15px 0;
+}
+
+/* Autocomplete dropdown styling */
+.pac-container {
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-top: 5px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.pac-item {
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.pac-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Button gradient style requested by user */
+.btn-grad {background-image: linear-gradient(to right, #000000 0%, #434343  51%, #000000  100%)}
+.btn-grad {
+     margin: 10px;
+     padding: 15px 45px;
+     text-align: center;
+     text-transform: uppercase;
+     transition: 0.5s;
+     background-size: 200% auto;
+     color: white;            
+     box-shadow: 0 0 20px #eee;
+     border-radius: 10px;
+     display: block;
+}
+
+.btn-grad:hover {
+     background-position: right center; /* change the direction of the change here */
+     color: #fff;
+     text-decoration: none;
+}
+
+/* alternative web gradient utility class */
+.web-gradient-bg {
+        background-image: linear-gradient(to right, #868f96 0%, #596164 100%);
+}
+
+/* small helper to use the font class if needed */
+.momo-trust-display-regular {
+    font-family: "Momo Trust Display", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}

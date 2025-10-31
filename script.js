@@ -495,6 +495,39 @@
 
     resultsDiv.innerHTML = html;
 
+    // Make stacked-table mode more usable on very small screens by adding data-labels
+    // and wrapping cell content into a value span so CSS can show labels via ::before.
+    try {
+      const tables = resultsDiv.querySelectorAll('.distance-matrix table');
+      tables.forEach(table => {
+        const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim());
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+          // build a combined cells list including the row header (th) then the td cells
+          const rowHeader = row.querySelector('th');
+          const cells = Array.from(row.querySelectorAll('th, td'));
+          cells.forEach((cell, idx) => {
+            // Determine label: headers array aligns so idx corresponds to headers[idx]
+            let label = headers[idx] || '';
+            if (!label && idx === 0) label = 'Location';
+            cell.setAttribute('data-label', label);
+
+            // ensure content is inside a span.value for stacked layout styling
+            if (!cell.querySelector('.value')) {
+              const span = document.createElement('span');
+              span.className = 'value';
+              span.innerHTML = cell.innerHTML;
+              cell.innerHTML = '';
+              cell.appendChild(span);
+            }
+          });
+        });
+      });
+    } catch (e) {
+      // non-fatal
+      console.error('Error while adding data-labels for stacked table:', e);
+    }
+
     // Display map
     displayMap(data);
     // Append nearest-neighbor breakdown controls (default start = first location)

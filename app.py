@@ -632,9 +632,9 @@ def autocomplete():
         return jsonify({'suggestions': []})
 
     try:
-        limit = int(request.args.get('limit', 8))
+        limit = int(request.args.get('limit', 12))
     except Exception:
-        limit = 8
+        limit = 12
 
     # Use Photon API (Komoot) - optimized for autocomplete, fewer rate limits
     photon_url = PHOTON_URL

@@ -9,12 +9,26 @@
     font-size: 16px;
 }
 
+html {
+    /* Prevent iOS zoom on input focus */
+    -webkit-text-size-adjust: 100%;
+    /* Enable smooth scrolling */
+    scroll-behavior: smooth;
+    /* Prevent overscroll bounce on iOS */
+    overscroll-behavior-y: none;
+}
+
 body {
     font-family: 'Momo Trust Display', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background: #ffffff; /* mobile-first: white background */
     min-height: 100vh;
     padding: 1rem; /* use rem for spacing */
     color: #1c1818;
+    /* Prevent text selection issues on mobile */
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+    /* Enable hardware acceleration */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
 }
 
 .container {
@@ -125,7 +139,7 @@ body {
         border-collapse: collapse;
     }
 /* Very small screens: convert matrix rows to stacked cards to avoid horizontal scrolling and cramped text */
-@media (max-width: 420px) {
+@media (max-width: 320px) {
     .distance-matrix {
         padding: 8px;
     }
@@ -221,18 +235,11 @@ header p {
 
 /* mobile-first: single column by default; switch to two columns on larger screens */
 .main-content {
-    display: block;
+    /* always stack input-section above results-section */
+    display: flex;
+    flex-direction: column;
     gap: 1.875rem;
     padding: 1.125rem;
-}
-
-@media (min-width: 769px) {
-    .main-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.875rem;
-        padding: 1.875rem;
-    }
 }
 
 .input-section h2,

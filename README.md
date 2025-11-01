@@ -12,8 +12,9 @@ Local setup (step-by-step)
 
 ```powershell
 # Fork on GitHub (optional) then clone:
-git clone <your-repo-url>
-cd DistanceOptimalityProblem
+git clone https://github.com/SitaGanesh/getripath.git
+cd getripath
+
 ```
 
 2) Create & activate a virtual environment
@@ -79,6 +80,7 @@ Function / endpoint descriptions
 
 `/autocomplete` — Suggestions
 - Input: `q` (and optional `limit`). Uses Photon (Komoot) with an India-biased bbox and returns suggestion list. Falls back to Nominatim when needed.
+- **Geographic filtering**: To limit search results to a specific country or region, use a bounding box parameter. For example, India bounding box: `bbox=68.0,6.5,97.5,35.5` (format: `min_lon,min_lat,max_lon,max_lat`). This improves autocomplete accuracy by restricting results to the specified geographic area.
 
 `haversine()` — Approx distance
 - Computes great-circle (km) between two lat/lon pairs. Used as a fallback estimate.

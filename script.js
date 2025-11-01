@@ -2,6 +2,7 @@
 (() => {
   const MAX_LOCATIONS = 50;
   const BACKEND_BASE = 'https://getripath.onrender.com';
+  const PREFER_GOOGLE_PLACES = false; // Set to true to use Google Places API instead of Photon/Nominatim
   // Backend (Photon) autocomplete is always used.
   const parent = document.getElementById('location-inputs');
   if (!parent) return;
@@ -73,7 +74,14 @@
         try {
           const url = `${BACKEND_BASE}/autocomplete?q=${encodeURIComponent(q)}&limit=8`;
           console.log('Fetching autocomplete:', url);
-          const resp = await fetch(url);
+          
+          // Add timeout to prevent hanging requests on mobile
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+          
+          const resp = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          
           console.log('Autocomplete response status:', resp.status);
           if (!resp.ok) {
             console.error('Autocomplete request failed:', resp.status, resp.statusText);
@@ -148,6 +156,7 @@
         } catch (err) {
           console.error('Autocomplete error', err);
           box.style.display = 'none';
+          // Don't block the UI on network errors
         }
       }, 250);
     });
@@ -172,8 +181,18 @@
     }
 
     // Initialize autocomplete for all inputs (backend-first when PREFER_GOOGLE_PLACES=false)
-    const inputs = document.querySelectorAll('input[type="text"][id^="loc-input-"]');
-    inputs.forEach(input => initAutocomplete(input));
+    try {
+      const inputs = document.querySelectorAll('input[type="text"][id^="loc-input-"]');
+      inputs.forEach(input => {
+        try {
+          initAutocomplete(input);
+        } catch (e) {
+          console.error('Failed to init autocomplete for input:', input.id, e);
+        }
+      });
+    } catch (e) {
+      console.error('Failed to initialize autocomplete:', e);
+    }
   }
 
   // create a brand new location block for a given index
@@ -193,6 +212,9 @@
     `;
 
     attachBlockHandlers(div);
+    
+    // Attach save listener
+    attachSaveListener(div);
     
     // Initialize autocomplete for the new input
     setTimeout(() => {
@@ -301,6 +323,9 @@
 
       const newInput = newBlock.querySelector('input[type="text"]');
       if (newInput) newInput.focus();
+      
+      // Save after adding new block
+      debouncedSave();
     });
 
     no.addEventListener('click', () => {
@@ -309,6 +334,9 @@
       // Mark this block as final so focus doesn't re-enable
       block.dataset.final = 'true';
       flashStatus(status, 'Marked final', false);
+      
+      // Save after marking final
+      debouncedSave();
     });
 
     input.addEventListener('keypress', (e) => {
@@ -340,15 +368,30 @@
       .replace(/>/g, '&gt;');
   }
 
-  // bootstrap: normalize everything currently in DOM
+  // bootstrap: normalize everything currently in DOM or restore from localStorage
   function bootstrapExisting() {
+    // Try to restore from localStorage first
+    const restored = restoreLocationsFromStorage();
+    if (restored) {
+      console.log('Restored locations from localStorage');
+      // Attach save listeners to all restored blocks
+      const blocks = parent.querySelectorAll('.content');
+      blocks.forEach(block => attachSaveListener(block));
+      return;
+    }
+    
+    // Otherwise, normalize existing DOM blocks
     const existing = Array.from(parent.querySelectorAll('.content'));
     if (existing.length === 0) {
       counter = 1;
-      parent.appendChild(createLocationBlock(1));
+      const firstBlock = createLocationBlock(1);
+      parent.appendChild(firstBlock);
       return;
     }
-    existing.forEach((b) => normalizeBlock(b));
+    existing.forEach((b) => {
+      normalizeBlock(b);
+      attachSaveListener(b);
+    });
   }
 
   // Initialize autocomplete after a delay
@@ -408,10 +451,101 @@
     });
   }
 
+  // localStorage persistence functions
+  function saveLocationsToStorage() {
+    try {
+      const blocks = parent.querySelectorAll('.content');
+      const locations = [];
+      blocks.forEach(block => {
+        const input = block.querySelector('input[type="text"]');
+        const yes = block.querySelector('.btn-yes');
+        const isFinal = block.dataset.final === 'true';
+        const isDisabled = yes && yes.disabled;
+        
+        if (input) {
+          locations.push({
+            value: input.value || '',
+            isFinal: isFinal,
+            buttonsDisabled: isDisabled
+          });
+        }
+      });
+      localStorage.setItem('distanceOptimalityLocations', JSON.stringify({
+        locations: locations,
+        counter: counter
+      }));
+    } catch (e) {
+      console.error('Failed to save to localStorage:', e);
+    }
+  }
+
+  function restoreLocationsFromStorage() {
+    try {
+      const saved = localStorage.getItem('distanceOptimalityLocations');
+      if (!saved) return false;
+      
+      const data = JSON.parse(saved);
+      if (!data.locations || !Array.isArray(data.locations)) return false;
+      
+      // Remove all existing blocks first
+      const existingBlocks = parent.querySelectorAll('.content');
+      existingBlocks.forEach(block => block.remove());
+      
+      // Restore counter
+      counter = data.counter || data.locations.length;
+      
+      // Create blocks for each saved location
+      data.locations.forEach((location, index) => {
+        const value = typeof location === 'string' ? location : location.value;
+        const newBlock = createLocationBlock(index, value);
+        parent.appendChild(newBlock);
+        
+        // Restore button states if saved
+        if (typeof location === 'object' && location.buttonsDisabled) {
+          const yes = newBlock.querySelector('.btn-yes');
+          const no = newBlock.querySelector('.btn-no');
+          if (yes) yes.disabled = true;
+          if (no) no.disabled = true;
+          if (location.isFinal) {
+            newBlock.dataset.final = 'true';
+          }
+        }
+      });
+      
+      // Re-initialize autocomplete
+      setTimeout(() => {
+        initAllAutocomplete();
+      }, 100);
+      
+      return true;
+    } catch (e) {
+      console.error('Failed to restore from localStorage:', e);
+      return false;
+    }
+  }
+
+  // Debounced save function
+  let saveTimeout;
+  function debouncedSave() {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(saveLocationsToStorage, 500);
+  }
+
+  // Attach input listeners to save on change
+  function attachSaveListener(block) {
+    const input = block.querySelector('input[type="text"]');
+    if (input) {
+      input.addEventListener('input', debouncedSave);
+    }
+  }
+
   // Reset button
   const resetBtn = document.getElementById('reset-btn');
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
+      // Clear localStorage
+      localStorage.removeItem('distanceOptimalityLocations');
+      
       // Clear all location inputs except the first one
       const blocks = parent.querySelectorAll('.content');
       blocks.forEach((block, index) => {
